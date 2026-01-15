@@ -1,0 +1,25 @@
+package tz.go.roadsfund.nrcc.enums;
+
+/**
+ * Application status enumeration based on SRS Section 6.2
+ */
+public enum ApplicationStatus {
+    DRAFT,
+    SUBMITTED,
+    RETURNED_FOR_CORRECTION,
+    UNDER_RAS_REVIEW,
+    UNDER_RC_REVIEW,
+    UNDER_MINISTER_REVIEW,
+    WITH_NRCC_CHAIR,
+    VERIFICATION_IN_PROGRESS,
+    NRCC_REVIEW_MEETING,
+    RECOMMENDATION_SUBMITTED,
+    APPROVED,
+    DISAPPROVED_REFUSED,
+    DISAPPROVED_DESIGNATED,
+    PENDING_GAZETTEMENT,
+    GAZETTED,
+    APPEAL_SUBMITTED,
+    APPEAL_UNDER_REVIEW,
+    APPEAL_CLOSED
+}
