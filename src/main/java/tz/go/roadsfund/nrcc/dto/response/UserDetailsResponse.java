@@ -21,8 +21,10 @@ public class UserDetailsResponse {
     private String email;
     private String phoneNumber;
     private String role;
-    private String organization;
+    private OrganizationResponse organization;
+    private String district;
     private String region;
+    private String userType;
     private String status;
     private Boolean emailVerified;
     private Boolean phoneVerified;

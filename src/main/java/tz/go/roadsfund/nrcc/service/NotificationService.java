@@ -26,6 +26,22 @@ public class NotificationService {
     private final EmailService emailService;
     private final SmsService smsService;
 
+    /**
+     * Send notification to the application's applicant via all channels
+     */
+    public void sendApplicationNotification(Application application, String message) {
+        if (application.getApplicant() != null) {
+            sendApplicationStatusNotification(application, application.getApplicant(), NotificationChannel.ALL, message);
+        }
+    }
+
+    /**
+     * Send notification to a specific user about an application
+     */
+    public void sendApplicationNotification(Application application, User recipient, String message) {
+        sendApplicationStatusNotification(application, recipient, NotificationChannel.ALL, message);
+    }
+
     public void sendApplicationStatusNotification(Application application, User recipient,
                                                   NotificationChannel channel, String message) {
         try {

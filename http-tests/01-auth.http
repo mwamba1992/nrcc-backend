@@ -1,0 +1,329 @@
+### NRCC Backend - Authentication Tests
+### Base URL: http://localhost:8080/api
+
+### =====================================================
+### 1. Register a new user (System Administrator)
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "System Administrator",
+  "email": "admin@roadsfund.go.tz",
+  "password": "Admin@123456",
+  "phoneNumber": "+255712345678",
+  "role": "SYSTEM_ADMINISTRATOR"
+}
+
+### =====================================================
+### 2. Register another user (Public Applicant)
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Mwangi",
+  "email": "john.mwangi@email.com",
+  "password": "Test@123456",
+  "phoneNumber": "+255723456789",
+  "role": "PUBLIC_APPLICANT"
+}
+
+### =====================================================
+### 3. Register RAS User
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "RAS Dar es Salaam",
+  "email": "ras.dar@roadsfund.go.tz",
+  "password": "Ras@123456",
+  "phoneNumber": "+255734567890",
+  "role": "REGIONAL_ADMINISTRATIVE_SECRETARY"
+}
+
+### =====================================================
+### 4. Register RC User
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "RC Dar es Salaam",
+  "email": "rc.dar@roadsfund.go.tz",
+  "password": "Rc@123456",
+  "phoneNumber": "+255745678901",
+  "role": "REGIONAL_COMMISSIONER"
+}
+
+### =====================================================
+### 5. Register Minister
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Minister of Works",
+  "email": "minister@works.go.tz",
+  "password": "Minister@123456",
+  "phoneNumber": "+255756789012",
+  "role": "MINISTER_OF_WORKS"
+}
+
+### =====================================================
+### 6. Register NRCC Chairperson
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "NRCC Chairperson",
+  "email": "chair@nrcc.go.tz",
+  "password": "Chair@123456",
+  "phoneNumber": "+255767890123",
+  "role": "NRCC_CHAIRPERSON"
+}
+
+### =====================================================
+### 7. Register NRCC Member
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "NRCC Member One",
+  "email": "member1@nrcc.go.tz",
+  "password": "Member@123456",
+  "phoneNumber": "+255778901234",
+  "role": "NRCC_MEMBER"
+}
+
+### =====================================================
+### 8. Register Ministry Lawyer
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ministry Lawyer",
+  "email": "lawyer@works.go.tz",
+  "password": "Lawyer@123456",
+  "phoneNumber": "+255789012345",
+  "role": "MINISTRY_LAWYER"
+}
+
+### =====================================================
+### 9. Register RRB Initiator
+### =====================================================
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "RRB Initiator DSM",
+  "email": "rrb@roadsfund.go.tz",
+  "password": "Rrb@123456",
+  "phoneNumber": "+255790123456",
+  "role": "REGIONAL_ROADS_BOARD_INITIATOR"
+}
+
+### =====================================================
+### 10. Login as Admin
+### =====================================================
+# @name adminLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@roadsfund.go.tz",
+  "password": "Admin@123456"
+}
+
+> {%
+    client.global.set("adminToken", response.body.data.accessToken);
+    client.global.set("adminRefreshToken", response.body.data.refreshToken);
+%}
+
+### =====================================================
+### 11. Login as Applicant
+### =====================================================
+# @name applicantLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.mwangi@email.com",
+  "password": "Test@123456"
+}
+
+> {%
+    client.global.set("applicantToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 12. Login as RAS
+### =====================================================
+# @name rasLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ras.dar@roadsfund.go.tz",
+  "password": "Ras@123456"
+}
+
+> {%
+    client.global.set("rasToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 13. Login as RC
+### =====================================================
+# @name rcLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "rc.dar@roadsfund.go.tz",
+  "password": "Rc@123456"
+}
+
+> {%
+    client.global.set("rcToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 14. Login as Minister
+### =====================================================
+# @name ministerLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "minister@works.go.tz",
+  "password": "Minister@123456"
+}
+
+> {%
+    client.global.set("ministerToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 15. Login as NRCC Chairperson
+### =====================================================
+# @name nrccChairLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "chair@nrcc.go.tz",
+  "password": "Chair@123456"
+}
+
+> {%
+    client.global.set("nrccChairToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 16. Login as NRCC Member
+### =====================================================
+# @name nrccMemberLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "member1@nrcc.go.tz",
+  "password": "Member@123456"
+}
+
+> {%
+    client.global.set("nrccMemberToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 17. Login as Ministry Lawyer
+### =====================================================
+# @name lawyerLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "lawyer@works.go.tz",
+  "password": "Lawyer@123456"
+}
+
+> {%
+    client.global.set("lawyerToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 18. Login as RRB Initiator
+### =====================================================
+# @name rrbLogin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "rrb@roadsfund.go.tz",
+  "password": "Rrb@123456"
+}
+
+> {%
+    client.global.set("rrbToken", response.body.data.accessToken);
+%}
+
+### =====================================================
+### 19. Refresh Token
+### =====================================================
+POST http://localhost:8080/api/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{adminRefreshToken}}"
+}
+
+### =====================================================
+### 20. Get Current User Profile
+### =====================================================
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 21. Update Current User Profile
+### =====================================================
+PUT http://localhost:8080/api/auth/me
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "System Administrator Updated",
+  "phoneNumber": "+255712345679"
+}
+
+### =====================================================
+### 22. Change Password
+### =====================================================
+POST http://localhost:8080/api/auth/change-password
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "currentPassword": "Test@123456",
+  "newPassword": "NewTest@123456"
+}
+
+### =====================================================
+### 23. Forgot Password (Request Reset)
+### =====================================================
+POST http://localhost:8080/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "john.mwangi@email.com"
+}
+
+### =====================================================
+### 24. Logout
+### =====================================================
+POST http://localhost:8080/api/auth/logout
+Authorization: Bearer {{adminToken}}

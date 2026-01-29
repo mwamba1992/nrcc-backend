@@ -2,8 +2,10 @@ package tz.go.roadsfund.nrcc.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tz.go.roadsfund.nrcc.enums.DecisionType;
+import tz.go.roadsfund.nrcc.enums.DisapprovalType;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Minister Decision entity
@@ -21,25 +23,29 @@ public class MinisterDecision extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id", nullable = false, unique = true)
     private Application application;
 
-    @Column(nullable = false, length = 50)
-    private String decision;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recommendation_id")
+    private Recommendation recommendation;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private DecisionType decision;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "disapproval_type", length = 50)
-    private String disapprovalType;
+    private DisapprovalType disapprovalType;
 
     @Column(columnDefinition = "TEXT")
     private String reason;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "decided_by_id")
+    private User decidedBy;
+
     @Column(name = "decision_date", nullable = false)
-    private LocalDate decisionDate;
-
-    @Column(name = "decision_reference", length = 100)
-    private String decisionReference;
-
-    @Column(columnDefinition = "TEXT")
-    private String comments;
+    private LocalDateTime decisionDate;
 }

@@ -1,0 +1,105 @@
+### NRCC Backend - User Management Tests
+### Requires: Run 01-auth.http first to get tokens
+
+### =====================================================
+### 1. Get All Users (Admin only)
+### =====================================================
+GET http://localhost:8080/api/users?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 2. Get User by ID
+### =====================================================
+GET http://localhost:8080/api/users/1
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 3. Search Users by Name
+### =====================================================
+GET http://localhost:8080/api/users/search?name=John&page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 4. Get Users by Role
+### =====================================================
+GET http://localhost:8080/api/users/role/APPLICANT
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 5. Get Active Users
+### =====================================================
+GET http://localhost:8080/api/users/active?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 6. Create New User (Admin)
+### =====================================================
+POST http://localhost:8080/api/users
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane.doe@email.com",
+  "password": "Jane@123456",
+  "phoneNumber": "+255799999999",
+  "role": "APPLICANT"
+}
+
+### =====================================================
+### 7. Update User
+### =====================================================
+PUT http://localhost:8080/api/users/2
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "John Mwangi Updated",
+  "phoneNumber": "+255723456780"
+}
+
+### =====================================================
+### 8. Activate User
+### =====================================================
+PATCH http://localhost:8080/api/users/2/activate
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 9. Deactivate User
+### =====================================================
+PATCH http://localhost:8080/api/users/2/deactivate
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 10. Bulk Activate Users
+### =====================================================
+POST http://localhost:8080/api/users/bulk-activate
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "userIds": [2, 3, 4]
+}
+
+### =====================================================
+### 11. Bulk Deactivate Users
+### =====================================================
+POST http://localhost:8080/api/users/bulk-deactivate
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "userIds": [2, 3]
+}
+
+### =====================================================
+### 12. Get User Statistics
+### =====================================================
+GET http://localhost:8080/api/users/statistics
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 13. Delete User (Soft Delete)
+### =====================================================
+DELETE http://localhost:8080/api/users/10
+Authorization: Bearer {{adminToken}}

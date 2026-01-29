@@ -1,0 +1,433 @@
+### NRCC Backend - Action Plan Management Tests
+### Requires: Run 01-auth.http first to get tokens
+
+### =====================================================
+### PART 1: CREATE AND MANAGE ACTION PLANS
+### =====================================================
+
+### =====================================================
+### 1. Create Action Plan for FY 2025/2026
+### =====================================================
+# @name createActionPlan1
+POST http://localhost:8080/api/action-plans
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "financialYear": "2025/2026",
+  "title": "NRCC Annual Action Plan 2025/2026",
+  "description": "Comprehensive action plan for road reclassification activities for the financial year 2025/2026",
+  "totalBudget": 500000000.00,
+  "targets": [
+    {
+      "title": "Process Road Reclassification Applications",
+      "indicator": "Number of applications processed",
+      "baseline": "0",
+      "targetValue": "50 applications",
+      "dueDate": "2026-06-30",
+      "subtotal": 150000000.00,
+      "activities": [
+        {
+          "description": "Conduct site verifications for submitted applications",
+          "quarterSchedule": ["Q1", "Q2", "Q3", "Q4"],
+          "expectedOutput": "Verification reports for all applications",
+          "responsibleUnit": "NRCC Verification Team",
+          "startDate": "2025-07-01",
+          "endDate": "2026-06-30",
+          "costItems": [
+            {
+              "description": "Field visit transport and DSA",
+              "amount": 80000000.00
+            },
+            {
+              "description": "Technical equipment and tools",
+              "amount": 20000000.00
+            }
+          ]
+        },
+        {
+          "description": "Conduct NRCC review meetings",
+          "quarterSchedule": ["Q1", "Q2", "Q3", "Q4"],
+          "expectedOutput": "Meeting minutes and recommendations",
+          "responsibleUnit": "NRCC Secretariat",
+          "startDate": "2025-07-01",
+          "endDate": "2026-06-30",
+          "costItems": [
+            {
+              "description": "Meeting venue and refreshments",
+              "amount": 30000000.00
+            },
+            {
+              "description": "Documentation and printing",
+              "amount": 20000000.00
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Enhance Public Awareness on Road Reclassification",
+      "indicator": "Number of awareness campaigns conducted",
+      "baseline": "2 campaigns",
+      "targetValue": "8 campaigns",
+      "dueDate": "2026-06-30",
+      "subtotal": 100000000.00,
+      "activities": [
+        {
+          "description": "Conduct regional stakeholder workshops",
+          "quarterSchedule": ["Q1", "Q3"],
+          "expectedOutput": "Workshop reports, attendance registers",
+          "responsibleUnit": "NRCC Communications Unit",
+          "startDate": "2025-07-01",
+          "endDate": "2026-03-31",
+          "costItems": [
+            {
+              "description": "Workshop facilitation",
+              "amount": 60000000.00
+            }
+          ]
+        },
+        {
+          "description": "Develop and distribute IEC materials",
+          "quarterSchedule": ["Q1", "Q2"],
+          "expectedOutput": "Brochures, posters, radio spots",
+          "responsibleUnit": "NRCC Communications Unit",
+          "startDate": "2025-07-01",
+          "endDate": "2025-12-31",
+          "costItems": [
+            {
+              "description": "IEC materials production",
+              "amount": 40000000.00
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Strengthen NRCC Institutional Capacity",
+      "indicator": "Number of staff trained",
+      "baseline": "5 staff",
+      "targetValue": "15 staff",
+      "dueDate": "2026-06-30",
+      "subtotal": 80000000.00,
+      "activities": [
+        {
+          "description": "Conduct staff training on road classification standards",
+          "quarterSchedule": ["Q2"],
+          "expectedOutput": "Training reports, certificates",
+          "responsibleUnit": "Human Resources",
+          "startDate": "2025-10-01",
+          "endDate": "2025-12-31",
+          "costItems": [
+            {
+              "description": "Training program costs",
+              "amount": 50000000.00
+            }
+          ]
+        },
+        {
+          "description": "Upgrade NRCC database management system",
+          "quarterSchedule": ["Q1", "Q2"],
+          "expectedOutput": "Enhanced system with new features",
+          "responsibleUnit": "ICT Unit",
+          "startDate": "2025-07-01",
+          "endDate": "2025-12-31",
+          "costItems": [
+            {
+              "description": "System development and maintenance",
+              "amount": 30000000.00
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+> {%
+    client.global.set("actionPlan1Id", response.body.data.id);
+%}
+
+### =====================================================
+### 2. Get Action Plan by ID
+### =====================================================
+GET http://localhost:8080/api/action-plans/{{actionPlan1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 3. Get All Action Plans (Paginated)
+### =====================================================
+GET http://localhost:8080/api/action-plans?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 4. Get Action Plan by Financial Year
+### =====================================================
+GET http://localhost:8080/api/action-plans/year/2025%2F2026
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 5. Get Action Plans by Status (DRAFT)
+### =====================================================
+GET http://localhost:8080/api/action-plans/status/DRAFT
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 6. Update Action Plan
+### =====================================================
+PUT http://localhost:8080/api/action-plans/{{actionPlan1Id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "NRCC Annual Action Plan 2025/2026 (Revised)",
+  "description": "Revised comprehensive action plan for road reclassification activities",
+  "totalBudget": 550000000.00
+}
+
+### =====================================================
+### PART 2: ADD TARGETS AND ACTIVITIES
+### =====================================================
+
+### =====================================================
+### 7. Add New Target to Action Plan
+### =====================================================
+POST http://localhost:8080/api/action-plans/{{actionPlan1Id}}/targets
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "title": "Improve Road Data Management",
+  "indicator": "Road database completeness percentage",
+  "baseline": "60%",
+  "targetValue": "95%",
+  "dueDate": "2026-06-30",
+  "subtotal": 70000000.00,
+  "activities": [
+    {
+      "description": "Conduct road inventory survey",
+      "quarterSchedule": ["Q2", "Q3"],
+      "expectedOutput": "Complete road inventory database",
+      "responsibleUnit": "Data Management Unit",
+      "startDate": "2025-10-01",
+      "endDate": "2026-03-31",
+      "costItems": [
+        {
+          "description": "Survey equipment and personnel",
+          "amount": 70000000.00
+        }
+      ]
+    }
+  ]
+}
+
+### =====================================================
+### 8. Add Activity to Existing Target (use targetId from GET response)
+### =====================================================
+POST http://localhost:8080/api/action-plans/targets/1/activities
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "description": "Prepare quarterly progress reports",
+  "quarterSchedule": ["Q1", "Q2", "Q3", "Q4"],
+  "expectedOutput": "4 quarterly reports submitted to Ministry",
+  "responsibleUnit": "NRCC Secretariat",
+  "startDate": "2025-07-01",
+  "endDate": "2026-06-30",
+  "costItems": [
+    {
+      "description": "Report production costs",
+      "amount": 5000000.00
+    }
+  ]
+}
+
+### =====================================================
+### PART 3: WORKFLOW - SUBMIT AND APPROVE
+### =====================================================
+
+### =====================================================
+### 9. Submit Action Plan for Approval
+### =====================================================
+POST http://localhost:8080/api/action-plans/{{actionPlan1Id}}/submit
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 10. Get Submitted Action Plans
+### =====================================================
+GET http://localhost:8080/api/action-plans/status/SUBMITTED
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 11. Approve Action Plan (as NRCC Chair)
+### =====================================================
+POST http://localhost:8080/api/action-plans/{{actionPlan1Id}}/approve?resolution=Approved%20by%20NRCC%20meeting%20held%20on%202025-06-15.%20Resolution%20No.%20NRCC%2F2025%2F001
+Authorization: Bearer {{nrccChairToken}}
+
+### =====================================================
+### 12. Get Approved Action Plans
+### =====================================================
+GET http://localhost:8080/api/action-plans/status/APPROVED
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### PART 4: EXECUTION AND PROGRESS TRACKING
+### =====================================================
+
+### =====================================================
+### 13. Start Action Plan Execution
+### =====================================================
+POST http://localhost:8080/api/action-plans/{{actionPlan1Id}}/start
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 14. Get In-Progress Action Plans
+### =====================================================
+GET http://localhost:8080/api/action-plans/status/IN_PROGRESS
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 15. Update Activity Progress (25% - Started)
+### Use activityId from GET action plan response
+### =====================================================
+PATCH http://localhost:8080/api/action-plans/activities/1/progress
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS",
+  "progressPercent": 25,
+  "comments": "Site verifications commenced. 5 out of 20 planned visits completed."
+}
+
+### =====================================================
+### 16. Update Activity Progress (50% - Midway)
+### =====================================================
+PATCH http://localhost:8080/api/action-plans/activities/1/progress
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS",
+  "progressPercent": 50,
+  "actualCost": 40000000.00,
+  "comments": "On track. 10 verifications completed. Budget utilization at 50%."
+}
+
+### =====================================================
+### 17. Update Activity Progress (100% - Completed)
+### =====================================================
+PATCH http://localhost:8080/api/action-plans/activities/1/progress
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "COMPLETED",
+  "progressPercent": 100,
+  "actualCost": 78000000.00,
+  "comments": "All 20 site verifications completed. Minor savings achieved on transport costs."
+}
+
+### =====================================================
+### 18. Update Multiple Activities Progress
+### =====================================================
+PATCH http://localhost:8080/api/action-plans/activities/2/progress
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "IN_PROGRESS",
+  "progressPercent": 75,
+  "actualCost": 35000000.00,
+  "comments": "3 out of 4 quarterly meetings conducted."
+}
+
+### =====================================================
+### 19. Check Action Plan Status and Overall Progress
+### =====================================================
+GET http://localhost:8080/api/action-plans/{{actionPlan1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 20. Get Completed Action Plans
+### =====================================================
+GET http://localhost:8080/api/action-plans/status/COMPLETED
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### PART 5: CREATE ANOTHER PLAN FOR NEXT YEAR
+### =====================================================
+
+### =====================================================
+### 21. Create Action Plan for FY 2026/2027
+### =====================================================
+POST http://localhost:8080/api/action-plans
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "financialYear": "2026/2027",
+  "title": "NRCC Annual Action Plan 2026/2027",
+  "description": "Action plan for road reclassification activities for FY 2026/2027",
+  "totalBudget": 600000000.00,
+  "targets": [
+    {
+      "title": "Process Road Reclassification Applications",
+      "indicator": "Number of applications processed",
+      "baseline": "50",
+      "targetValue": "70 applications",
+      "dueDate": "2027-06-30",
+      "subtotal": 200000000.00,
+      "activities": [
+        {
+          "description": "Conduct site verifications",
+          "quarterSchedule": ["Q1", "Q2", "Q3", "Q4"],
+          "expectedOutput": "Verification reports",
+          "responsibleUnit": "NRCC Verification Team",
+          "costItems": [
+            {
+              "description": "Field operations",
+              "amount": 200000000.00
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+### =====================================================
+### PART 6: DELETE DRAFT ACTION PLAN
+### =====================================================
+
+### =====================================================
+### 22. Create Draft for Deletion Test
+### =====================================================
+# @name createForDelete
+POST http://localhost:8080/api/action-plans
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "financialYear": "2027/2028",
+  "title": "Test Plan - To Be Deleted",
+  "description": "This plan will be deleted",
+  "totalBudget": 100000000.00
+}
+
+> {%
+    client.global.set("deletePlanId", response.body.data.id);
+%}
+
+### =====================================================
+### 23. Delete Draft Action Plan
+### =====================================================
+DELETE http://localhost:8080/api/action-plans/{{deletePlanId}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 24. Verify Deletion (Should return 404)
+### =====================================================
+GET http://localhost:8080/api/action-plans/{{deletePlanId}}
+Authorization: Bearer {{adminToken}}

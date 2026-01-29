@@ -9,10 +9,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tz.go.roadsfund.nrcc.dto.request.ChangePasswordRequest;
-import tz.go.roadsfund.nrcc.dto.request.CreateUserRequest;
-import tz.go.roadsfund.nrcc.dto.request.UpdateUserRequest;
+import tz.go.roadsfund.nrcc.dto.request.*;
 import tz.go.roadsfund.nrcc.dto.response.ApiResponse;
+import tz.go.roadsfund.nrcc.dto.response.BulkActionResponse;
 import tz.go.roadsfund.nrcc.dto.response.UserDetailsResponse;
 import tz.go.roadsfund.nrcc.dto.response.UserResponse;
 import tz.go.roadsfund.nrcc.enums.Permission;
@@ -102,12 +101,22 @@ public class UserController {
     }
 
     /**
-     * Get users by region
+     * Get users by region ID
      */
-    @GetMapping("/region/{region}")
+    @GetMapping("/region/{regionId}")
     @RequirePermission(Permission.USER_LIST)
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsersByRegion(@PathVariable String region) {
-        List<UserResponse> users = userService.getUsersByRegion(region);
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsersByRegion(@PathVariable Long regionId) {
+        List<UserResponse> users = userService.getUsersByRegion(regionId);
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
+    }
+
+    /**
+     * Get users by district ID
+     */
+    @GetMapping("/district/{districtId}")
+    @RequirePermission(Permission.USER_LIST)
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsersByDistrict(@PathVariable Long districtId) {
+        List<UserResponse> users = userService.getUsersByDistrict(districtId);
         return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
     }
 
@@ -172,5 +181,102 @@ public class UserController {
     public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable Long id) {
         userService.deactivateUser(id);
         return ResponseEntity.ok(ApiResponse.success("User deactivated successfully", null));
+    }
+
+    // ==================== SEARCH & FILTER ====================
+
+    /**
+     * Search users by name
+     */
+    @GetMapping("/search")
+    @RequirePermission(Permission.USER_LIST)
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> searchUsersByName(
+            @RequestParam String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<UserResponse> users = userService.searchUsersByName(name, pageable);
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
+    }
+
+    /**
+     * Advanced search with multiple criteria
+     */
+    @PostMapping("/search")
+    @RequirePermission(Permission.USER_LIST)
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> searchUsers(
+            @RequestBody UserSearchRequest searchRequest,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        Page<UserResponse> users = userService.searchUsers(searchRequest, pageable);
+        return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
+    }
+
+    // ==================== BULK OPERATIONS ====================
+
+    /**
+     * Perform bulk action on users (activate, deactivate, delete)
+     */
+    @PostMapping("/bulk")
+    @RequirePermission(Permission.USER_UPDATE)
+    public ResponseEntity<ApiResponse<BulkActionResponse>> bulkAction(
+            @Valid @RequestBody BulkUserActionRequest request) {
+        BulkActionResponse response = userService.performBulkAction(request);
+        return ResponseEntity.ok(ApiResponse.success("Bulk action completed", response));
+    }
+
+    // ==================== SEND EMAIL VERIFICATION ====================
+
+    /**
+     * Send email verification for a specific user (Admin)
+     */
+    @PostMapping("/{id}/send-verification")
+    @RequirePermission(Permission.USER_UPDATE)
+    public ResponseEntity<ApiResponse<Void>> sendEmailVerification(@PathVariable Long id) {
+        userService.sendEmailVerification(id);
+        return ResponseEntity.ok(ApiResponse.success("Verification email sent", null));
+    }
+
+    // ==================== STATISTICS ====================
+
+    /**
+     * Get user count by role
+     */
+    @GetMapping("/stats/count-by-role/{role}")
+    @RequirePermission(Permission.USER_LIST)
+    public ResponseEntity<ApiResponse<Long>> countByRole(@PathVariable UserRole role) {
+        long count = userService.countUsersByRole(role);
+        return ResponseEntity.ok(ApiResponse.success("Count retrieved", count));
+    }
+
+    /**
+     * Get user count by status
+     */
+    @GetMapping("/stats/count-by-status/{status}")
+    @RequirePermission(Permission.USER_LIST)
+    public ResponseEntity<ApiResponse<Long>> countByStatus(@PathVariable String status) {
+        long count = userService.countUsersByStatus(status);
+        return ResponseEntity.ok(ApiResponse.success("Count retrieved", count));
+    }
+
+    /**
+     * Get user count by organization
+     */
+    @GetMapping("/stats/count-by-organization/{organizationId}")
+    @RequirePermission(Permission.USER_LIST)
+    public ResponseEntity<ApiResponse<Long>> countByOrganization(@PathVariable Long organizationId) {
+        long count = userService.countUsersByOrganization(organizationId);
+        return ResponseEntity.ok(ApiResponse.success("Count retrieved", count));
     }
 }

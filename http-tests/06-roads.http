@@ -1,0 +1,159 @@
+### NRCC Backend - Road Management Tests
+### Requires: Run 01-auth.http, 03-regions.http, 04-districts.http first
+
+### =====================================================
+### 1. Create Road - District Road for Reclassification
+### =====================================================
+# @name createRoad1
+POST http://localhost:8080/api/roads
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Ukonga-Chanika Road",
+  "roadNumber": "D501",
+  "currentClass": "DISTRICT",
+  "length": 15.5,
+  "startPoint": "Ukonga",
+  "endPoint": "Chanika",
+  "region": "Dar es Salaam",
+  "district": "Ilala",
+  "surfaceType": "GRAVEL",
+  "carriagewayWidth": 6.0,
+  "formationWidth": 9.0,
+  "roadReserveWidth": 30.0
+}
+
+> {%
+    client.global.set("road1Id", response.body.data.id);
+%}
+
+### =====================================================
+### 2. Create Road - Regional Road
+### =====================================================
+# @name createRoad2
+POST http://localhost:8080/api/roads
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Kilwa Road",
+  "roadNumber": "R201",
+  "currentClass": "REGIONAL",
+  "length": 150.0,
+  "startPoint": "Temeke",
+  "endPoint": "Kilwa",
+  "region": "Dar es Salaam",
+  "district": "Temeke",
+  "surfaceType": "GRAVEL",
+  "carriagewayWidth": 7.0,
+  "formationWidth": 10.0,
+  "roadReserveWidth": 40.0
+}
+
+> {%
+    client.global.set("road2Id", response.body.data.id);
+%}
+
+### =====================================================
+### 3. Create Road - Trunk Road
+### =====================================================
+POST http://localhost:8080/api/roads
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Morogoro Road",
+  "roadNumber": "T1",
+  "currentClass": "TRUNK",
+  "length": 196.0,
+  "startPoint": "Dar es Salaam",
+  "endPoint": "Morogoro",
+  "region": "Dar es Salaam",
+  "district": "Kinondoni",
+  "surfaceType": "PAVED",
+  "carriagewayWidth": 7.0,
+  "formationWidth": 12.0,
+  "roadReserveWidth": 60.0
+}
+
+### =====================================================
+### 4. Create Road - Feeder Road
+### =====================================================
+POST http://localhost:8080/api/roads
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Mbezi-Mabwepande Road",
+  "roadNumber": "F101",
+  "currentClass": "FEEDER",
+  "length": 8.2,
+  "startPoint": "Mbezi",
+  "endPoint": "Mabwepande",
+  "region": "Dar es Salaam",
+  "district": "Kinondoni",
+  "surfaceType": "EARTH"
+}
+
+### =====================================================
+### 5. Get All Roads (Paginated)
+### =====================================================
+GET http://localhost:8080/api/roads?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 6. Get All Roads (List)
+### =====================================================
+GET http://localhost:8080/api/roads/list
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 7. Get Road by ID
+### =====================================================
+GET http://localhost:8080/api/roads/{{road1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 8. Get Roads by Classification
+### =====================================================
+GET http://localhost:8080/api/roads/classification/DISTRICT?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 9. Search Roads by Name
+### =====================================================
+GET http://localhost:8080/api/roads/search?name=road&page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 10. Update Road
+### =====================================================
+PUT http://localhost:8080/api/roads/{{road1Id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Ukonga-Chanika Road (Extended)",
+  "roadNumber": "D501",
+  "currentClass": "DISTRICT",
+  "length": 18.0,
+  "startPoint": "Ukonga Junction",
+  "endPoint": "Chanika Village",
+  "region": "Dar es Salaam",
+  "district": "Ilala",
+  "surfaceType": "GRAVEL",
+  "description": "Extended road serving agricultural communities"
+}
+
+### =====================================================
+### 11. Get Road Statistics
+### =====================================================
+GET http://localhost:8080/api/roads/statistics
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 12. Delete Road (Use carefully)
+### =====================================================
+# DELETE http://localhost:8080/api/roads/5
+# Authorization: Bearer {{adminToken}}

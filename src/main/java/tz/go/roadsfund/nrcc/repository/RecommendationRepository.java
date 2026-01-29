@@ -19,6 +19,4 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
     Optional<Recommendation> findByApplicationId(Long applicationId);
 
     List<Recommendation> findBySubmittedById(Long userId);
-
-    List<Recommendation> findByRecommendationType(String recommendationType);
 }

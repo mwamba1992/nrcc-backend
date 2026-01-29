@@ -2,8 +2,9 @@ package tz.go.roadsfund.nrcc.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tz.go.roadsfund.nrcc.enums.AppealStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Appeal entity for refused applications
@@ -26,24 +27,31 @@ public class Appeal extends BaseEntity {
     private Application application;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "decision_id")
+    private MinisterDecision decision;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "appellant_id", nullable = false)
     private User appellant;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String grounds;
 
-    @Column(columnDefinition = "TEXT")
-    private String attachments;
-
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String status = "SUBMITTED";
+    @Builder.Default
+    private AppealStatus status = AppealStatus.SUBMITTED;
 
-    @Column(name = "submission_date")
-    private LocalDate submissionDate;
+    @Column(name = "appeal_date")
+    private LocalDateTime appealDate;
 
-    @Column(columnDefinition = "TEXT")
-    private String decision;
+    @Column(name = "appeal_decision", columnDefinition = "TEXT")
+    private String appealDecision;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "decided_by_id")
+    private User decidedBy;
 
     @Column(name = "decision_date")
-    private LocalDate decisionDate;
+    private LocalDateTime decisionDate;
 }

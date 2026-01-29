@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tz.go.roadsfund.nrcc.dto.request.LoginRequest;
-import tz.go.roadsfund.nrcc.dto.request.RefreshTokenRequest;
-import tz.go.roadsfund.nrcc.dto.request.RegisterRequest;
+import tz.go.roadsfund.nrcc.dto.request.*;
 import tz.go.roadsfund.nrcc.dto.response.ApiResponse;
 import tz.go.roadsfund.nrcc.dto.response.AuthResponse;
+import tz.go.roadsfund.nrcc.dto.response.UserDetailsResponse;
 import tz.go.roadsfund.nrcc.service.AuthService;
+import tz.go.roadsfund.nrcc.service.UserService;
 import tz.go.roadsfund.nrcc.util.SecurityUtil;
 
 /**
@@ -23,6 +23,7 @@ import tz.go.roadsfund.nrcc.util.SecurityUtil;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
@@ -75,5 +76,80 @@ public class AuthController {
 
         authService.logoutAllDevices(userId);
         return ResponseEntity.ok(ApiResponse.success("Logged out from all devices successfully", null));
+    }
+
+    // ==================== PASSWORD RESET ====================
+
+    /**
+     * Request password reset (forgot password)
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        userService.requestPasswordReset(request);
+        return ResponseEntity.ok(ApiResponse.success(
+                "If the email exists, a password reset link has been sent", null));
+    }
+
+    /**
+     * Reset password with token
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset successfully", null));
+    }
+
+    // ==================== EMAIL VERIFICATION ====================
+
+    /**
+     * Verify email with token
+     */
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(
+            @Valid @RequestBody VerifyEmailRequest request) {
+        userService.verifyEmail(request);
+        return ResponseEntity.ok(ApiResponse.success("Email verified successfully", null));
+    }
+
+    /**
+     * Resend email verification (for authenticated users)
+     */
+    @PostMapping("/resend-verification")
+    public ResponseEntity<ApiResponse<Void>> resendVerification() {
+        userService.resendEmailVerification();
+        return ResponseEntity.ok(ApiResponse.success("Verification email sent", null));
+    }
+
+    // ==================== CURRENT USER PROFILE ====================
+
+    /**
+     * Get current user's profile
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserDetailsResponse>> getCurrentUser() {
+        UserDetailsResponse user = userService.getCurrentUserProfile();
+        return ResponseEntity.ok(ApiResponse.success("Profile retrieved successfully", user));
+    }
+
+    /**
+     * Update current user's profile
+     */
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserDetailsResponse>> updateCurrentUser(
+            @Valid @RequestBody UpdateProfileRequest request) {
+        UserDetailsResponse user = userService.updateCurrentUserProfile(request);
+        return ResponseEntity.ok(ApiResponse.success("Profile updated successfully", user));
+    }
+
+    /**
+     * Change current user's password
+     */
+    @PutMapping("/me/change-password")
+    public ResponseEntity<ApiResponse<Void>> changeCurrentUserPassword(
+            @Valid @RequestBody ChangePasswordRequest request) {
+        userService.changeCurrentUserPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
     }
 }

@@ -2,6 +2,7 @@ package tz.go.roadsfund.nrcc.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tz.go.roadsfund.nrcc.enums.VerificationStatus;
 
 import java.time.LocalDate;
 
@@ -29,14 +30,23 @@ public class VerificationAssignment extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private User member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_by_id")
+    private User assignedBy;
+
     @Column(name = "due_date")
     private LocalDate dueDate;
 
     @Column(name = "visit_date")
     private LocalDate visitDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String status = "PENDING";
+    @Builder.Default
+    private VerificationStatus status = VerificationStatus.ASSIGNED;
+
+    @Column(columnDefinition = "TEXT")
+    private String instructions;
 
     @OneToOne(mappedBy = "assignment", cascade = CascadeType.ALL)
     private VerificationReport report;

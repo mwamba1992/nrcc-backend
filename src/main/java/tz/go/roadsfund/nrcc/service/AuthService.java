@@ -12,11 +12,16 @@ import org.springframework.transaction.annotation.Transactional;
 import tz.go.roadsfund.nrcc.dto.request.LoginRequest;
 import tz.go.roadsfund.nrcc.dto.request.RegisterRequest;
 import tz.go.roadsfund.nrcc.dto.response.AuthResponse;
+import tz.go.roadsfund.nrcc.dto.response.OrganizationResponse;
 import tz.go.roadsfund.nrcc.dto.response.UserResponse;
+import tz.go.roadsfund.nrcc.entity.District;
+import tz.go.roadsfund.nrcc.entity.Organization;
 import tz.go.roadsfund.nrcc.entity.RefreshToken;
 import tz.go.roadsfund.nrcc.entity.User;
 import tz.go.roadsfund.nrcc.enums.UserRole;
 import tz.go.roadsfund.nrcc.exception.BadRequestException;
+import tz.go.roadsfund.nrcc.repository.DistrictRepository;
+import tz.go.roadsfund.nrcc.repository.OrganizationRepository;
 import tz.go.roadsfund.nrcc.repository.UserRepository;
 import tz.go.roadsfund.nrcc.security.JwtTokenProvider;
 
@@ -31,6 +36,8 @@ import java.time.LocalDateTime;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
+    private final DistrictRepository districtRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
@@ -43,6 +50,20 @@ public class AuthService {
             throw new BadRequestException("Email address already in use");
         }
 
+        // Fetch organization if provided
+        Organization organization = null;
+        if (request.getOrganizationId() != null) {
+            organization = organizationRepository.findById(request.getOrganizationId())
+                    .orElseThrow(() -> new BadRequestException("Organization not found"));
+        }
+
+        // Fetch district if provided
+        District district = null;
+        if (request.getDistrictId() != null) {
+            district = districtRepository.findById(request.getDistrictId())
+                    .orElseThrow(() -> new BadRequestException("District not found"));
+        }
+
         // Create new user
         User user = User.builder()
                 .name(request.getName())
@@ -50,8 +71,9 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .role(request.getRole() != null ? request.getRole() : UserRole.PUBLIC_APPLICANT)
-                .organization(request.getOrganization())
-                .region(request.getRegion())
+                .organization(organization)
+                .district(district)
+                .userType(request.getUserType())
                 .status("ACTIVE")
                 .emailVerified(false)
                 .phoneVerified(false)
@@ -210,14 +232,43 @@ public class AuthService {
     }
 
     private UserResponse mapToUserResponse(User user) {
+        OrganizationResponse organizationResponse = null;
+        if (user.getOrganization() != null) {
+            Organization org = user.getOrganization();
+            String districtName = org.getDistrict() != null ? org.getDistrict().getName() : null;
+            String regionName = org.getDistrict() != null && org.getDistrict().getRegion() != null ?
+                    org.getDistrict().getRegion().getName() : null;
+
+            organizationResponse = OrganizationResponse.builder()
+                    .id(org.getId())
+                    .code(org.getCode())
+                    .name(org.getName())
+                    .organizationType(org.getOrganizationType())
+                    .description(org.getDescription())
+                    .contactPerson(org.getContactPerson())
+                    .email(org.getEmail())
+                    .phoneNumber(org.getPhoneNumber())
+                    .address(org.getAddress())
+                    .region(regionName)
+                    .district(districtName)
+                    .status(org.getStatus())
+                    .build();
+        }
+
+        String districtName = user.getDistrict() != null ? user.getDistrict().getName() : null;
+        String regionName = user.getDistrict() != null && user.getDistrict().getRegion() != null ?
+                user.getDistrict().getRegion().getName() : null;
+
         return UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole().name())
-                .organization(user.getOrganization())
-                .region(user.getRegion())
+                .organization(organizationResponse)
+                .district(districtName)
+                .region(regionName)
+                .userType(user.getUserType())
                 .status(user.getStatus())
                 .build();
     }

@@ -28,7 +28,9 @@ public class RegisterRequest {
 
     private UserRole role;
 
-    private String organization;
+    private Long organizationId;
 
-    private String region;
+    private Long districtId;
+
+    private String userType;
 }

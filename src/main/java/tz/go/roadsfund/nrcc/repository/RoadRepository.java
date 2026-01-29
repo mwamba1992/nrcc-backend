@@ -18,9 +18,13 @@ public interface RoadRepository extends JpaRepository<Road, Long> {
 
     List<Road> findByRegion(String region);
 
+    List<Road> findByDistrict(String district);
+
     List<Road> findByRegionAndDistrict(String region, String district);
 
     Optional<Road> findByRoadNumber(String roadNumber);
+
+    boolean existsByRoadNumber(String roadNumber);
 
     List<Road> findByNameContainingIgnoreCase(String name);
 

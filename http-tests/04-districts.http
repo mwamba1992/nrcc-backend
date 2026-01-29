@@ -1,0 +1,132 @@
+### NRCC Backend - District Management Tests
+### Requires: Run 01-auth.http and 03-regions.http first
+
+### =====================================================
+### 1. Create District - Ilala (Dar es Salaam)
+### =====================================================
+# @name createDistrict1
+POST http://localhost:8080/api/districts
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Ilala",
+  "code": "ILA",
+  "regionId": {{region1Id}}
+}
+
+> {%
+    client.global.set("district1Id", response.body.data.id);
+%}
+
+### =====================================================
+### 2. Create District - Kinondoni (Dar es Salaam)
+### =====================================================
+# @name createDistrict2
+POST http://localhost:8080/api/districts
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Kinondoni",
+  "code": "KND",
+  "regionId": {{region1Id}}
+}
+
+> {%
+    client.global.set("district2Id", response.body.data.id);
+%}
+
+### =====================================================
+### 3. Create District - Temeke (Dar es Salaam)
+### =====================================================
+POST http://localhost:8080/api/districts
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Temeke",
+  "code": "TMK",
+  "regionId": {{region1Id}}
+}
+
+### =====================================================
+### 4. Create District - Ubungo (Dar es Salaam)
+### =====================================================
+POST http://localhost:8080/api/districts
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Ubungo",
+  "code": "UBG",
+  "regionId": {{region1Id}}
+}
+
+### =====================================================
+### 5. Create District - Dodoma Urban (Dodoma)
+### =====================================================
+POST http://localhost:8080/api/districts
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dodoma Urban",
+  "code": "DOU",
+  "regionId": {{region2Id}}
+}
+
+### =====================================================
+### 6. Get All Districts (Paginated)
+### =====================================================
+GET http://localhost:8080/api/districts?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 7. Get All Districts (List)
+### =====================================================
+GET http://localhost:8080/api/districts/list
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 8. Get District by ID
+### =====================================================
+GET http://localhost:8080/api/districts/{{district1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 9. Get District by Code
+### =====================================================
+GET http://localhost:8080/api/districts/code/ILA
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 10. Get Districts by Region ID
+### =====================================================
+GET http://localhost:8080/api/districts/region/{{region1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 11. Search Districts by Name
+### =====================================================
+GET http://localhost:8080/api/districts/search?name=kin&page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 12. Update District
+### =====================================================
+PUT http://localhost:8080/api/districts/{{district1Id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Ilala District",
+  "code": "ILA",
+  "regionId": {{region1Id}}
+}
+
+### =====================================================
+### 13. Delete District (Use carefully)
+### =====================================================
+# DELETE http://localhost:8080/api/districts/5
+# Authorization: Bearer {{adminToken}}

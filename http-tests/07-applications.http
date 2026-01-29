@@ -1,0 +1,667 @@
+### NRCC Backend - Application Management & Workflow Tests
+### Requires: Run all previous .http files first (01-auth through 06-roads)
+
+### =====================================================
+### PART 1: APPLICATION CRUD OPERATIONS
+### =====================================================
+
+### =====================================================
+### 1. Create Application (as Applicant - Individual)
+### Request for District Road to be upgraded to Regional Road
+### =====================================================
+# @name createApplication1
+POST http://localhost:8080/api/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "applicantType": "INDIVIDUAL",
+  "proposedClass": "REGIONAL",
+  "roadName": "Ukonga-Chanika Road",
+  "roadLength": 15.5,
+  "currentClass": "DISTRICT",
+  "startingPoint": "Ukonga Junction",
+  "terminalPoint": "Chanika Village",
+  "reclassificationReasons": "The Ukonga-Chanika road serves as a major connector between multiple districts and has significant traffic volume. Recent surveys show average daily traffic of 2500 vehicles. Upgrading to Regional classification will ensure better maintenance and funding allocation.",
+  "surfaceTypeCarriageway": "Gravel",
+  "surfaceTypeShoulders": "Earth",
+  "carriagewayWidth": 6.0,
+  "formationWidth": 9.0,
+  "actualRoadReserveWidth": 30.0,
+  "trafficLevel": "High - approximately 2500 vehicles per day",
+  "trafficComposition": "60% private vehicles, 30% commercial/public transport, 10% heavy goods vehicles",
+  "townsVillagesLinked": "Ukonga, Pugu, Chanika, Kisarawe",
+  "principalNodes": "Ukonga Market, Pugu Hills, Chanika Junction",
+  "busRoutes": "Multiple daladala routes including Ukonga-Chanika, Pugu-City",
+  "publicServices": "Chanika Secondary School, Ukonga Health Centre, Pugu Markets",
+  "alternativeRoutes": "None - this is the only direct route",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "R1",
+      "details": "Road directly connects Ilala and Kisarawe districts",
+      "evidenceDescription": "Survey map showing district boundaries crossed by the road"
+    },
+    {
+      "criterionCode": "R2",
+      "details": "Links new settlement areas with district headquarters",
+      "evidenceDescription": "Population census data showing growth in connected areas"
+    },
+    {
+      "criterionCode": "R5",
+      "details": "Road provides access to schools and health centres",
+      "evidenceDescription": "List of social services along the route with enrollment/capacity data"
+    }
+  ]
+}
+
+> {%
+    client.global.set("application1Id", response.body.data.id);
+    client.global.set("application1Number", response.body.data.applicationNumber);
+%}
+
+### =====================================================
+### 2. Create Application (Regional Roads Board Workflow)
+### For testing Workflow B (RRB -> RAS -> RC -> Minister)
+### =====================================================
+# @name createApplication2
+POST http://localhost:8080/api/applications
+Authorization: Bearer {{rrbToken}}
+Content-Type: application/json
+
+{
+  "applicantType": "REGIONAL_ROADS_BOARD",
+  "proposedClass": "TRUNK",
+  "roadName": "Kilwa Road",
+  "roadLength": 150.0,
+  "currentClass": "REGIONAL",
+  "startingPoint": "Temeke Junction",
+  "terminalPoint": "Kilwa Masoko",
+  "reclassificationReasons": "The Kilwa Road is a critical link in the national road network connecting southern regions to Dar es Salaam. Traffic volume has increased significantly and requires Trunk Road classification for better infrastructure investment. The road also serves as an international corridor to Mozambique.",
+  "surfaceTypeCarriageway": "Gravel/Paved sections",
+  "surfaceTypeShoulders": "Earth",
+  "carriagewayWidth": 7.0,
+  "formationWidth": 10.0,
+  "actualRoadReserveWidth": 40.0,
+  "trafficLevel": "Very High - over 6000 vehicles per day",
+  "trafficComposition": "40% private vehicles, 35% commercial/buses, 25% heavy trucks",
+  "townsVillagesLinked": "Temeke, Mbagala, Kigamboni, Kilwa Kivinje, Kilwa Masoko",
+  "principalNodes": "Temeke Junction, Kigamboni Ferry, Kilwa Port",
+  "busRoutes": "Inter-regional buses to Lindi, Mtwara, and international to Mozambique",
+  "publicServices": "Multiple hospitals, schools, government offices along the route",
+  "alternativeRoutes": "None - coastal route is the only option",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "T1",
+      "details": "Road connects Dar es Salaam Region to Lindi Region",
+      "evidenceDescription": "Map showing regional connectivity"
+    },
+    {
+      "criterionCode": "T2",
+      "details": "Road serves as international corridor to Mozambique",
+      "evidenceDescription": "Border crossing statistics and trade data"
+    },
+    {
+      "criterionCode": "T3",
+      "details": "Average daily traffic exceeds 5000 vehicles",
+      "evidenceDescription": "Traffic count survey from TANROADS"
+    }
+  ]
+}
+
+> {%
+    client.global.set("application2Id", response.body.data.id);
+    client.global.set("application2Number", response.body.data.applicationNumber);
+%}
+
+### =====================================================
+### 3. Get Application by ID
+### =====================================================
+GET http://localhost:8080/api/applications/{{application1Id}}
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 4. Get Application by Number
+### =====================================================
+GET http://localhost:8080/api/applications/number/{{application1Number}}
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 5. Get All Applications (Admin/Paginated)
+### =====================================================
+GET http://localhost:8080/api/applications?page=0&size=10&sortBy=createdAt&sortDirection=DESC
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 6. Get Applications by Status
+### =====================================================
+GET http://localhost:8080/api/applications/status/DRAFT?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 7. Get My Applications (as Applicant)
+### =====================================================
+GET http://localhost:8080/api/applications/my-applications?page=0&size=10
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 8. Update Draft Application
+### =====================================================
+PUT http://localhost:8080/api/applications/{{application1Id}}
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "reclassificationReasons": "UPDATED: The Ukonga-Chanika road serves as a major connector between multiple districts and has significant traffic volume. Recent surveys show average daily traffic of 2800 vehicles (up from initial estimate of 2500). Road surface has deteriorated and requires immediate attention. Upgrading to Regional classification will ensure better maintenance and funding allocation.",
+  "trafficLevel": "Very High - approximately 2800 vehicles per day (updated count)",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "R1",
+      "details": "Road directly connects Ilala and Kisarawe districts - verified by recent survey",
+      "evidenceDescription": "Updated survey map with GPS coordinates"
+    },
+    {
+      "criterionCode": "R2",
+      "details": "Links rapidly growing settlement areas with district headquarters",
+      "evidenceDescription": "2025 Population census data showing 15% growth"
+    },
+    {
+      "criterionCode": "R5",
+      "details": "Road provides access to 3 secondary schools and 2 health centres",
+      "evidenceDescription": "Updated list of social services with current enrollment and capacity"
+    }
+  ]
+}
+
+### =====================================================
+### PART 2: WORKFLOW A - PUBLIC/MP DIRECT TO MINISTER
+### (Application 1: Individual Applicant)
+### =====================================================
+
+### =====================================================
+### 9. Submit Application (Workflow A: Goes directly to Minister)
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/submit
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 10. Minister Forwards to NRCC Chair (Workflow C)
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/forward-to-nrcc
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "comments": "Application reviewed. Road appears to meet regional classification criteria. Forwarding to NRCC for technical verification and recommendation."
+}
+
+### =====================================================
+### 11. NRCC Chair Assigns Verification
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/assign-verification
+Authorization: Bearer {{nrccChairToken}}
+Content-Type: application/json
+
+{
+  "memberId": 7,
+  "instructions": "Please conduct site verification within 14 days. Focus on:\n1. Traffic volume count (3-day survey)\n2. Road condition assessment\n3. Social services connectivity\n4. District boundary verification\n5. Population data validation",
+  "dueDate": "2026-02-15"
+}
+
+### =====================================================
+### 12. NRCC Member Submits Verification Report
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/submit-verification-report
+Authorization: Bearer {{nrccMemberToken}}
+Content-Type: application/json
+
+{
+  "findings": "Site verification completed on 2026-02-10.\n\nKEY FINDINGS:\n1. Road length verified: 15.5km as stated\n2. Traffic count (3-day average): 2,843 vehicles/day\n   - Private vehicles: 58%\n   - Commercial/daladala: 32%\n   - Heavy goods: 10%\n3. Road condition: Fair to poor, urgent maintenance needed\n   - Carriageway width: 5.8-6.2m (variable)\n   - Potholes noted at km 5, 8, 12\n4. Social services verified:\n   - Chanika Secondary School: 1,250 students\n   - Ukonga Health Centre: serves 52,000 population\n   - Pugu Market: major agricultural hub\n5. District connectivity: Confirmed road crosses Ilala-Kisarawe boundary at km 11\n\nRECOMMENDATION: Road meets criteria R1, R2, and R5 for Regional classification upgrade. Strong justification exists for reclassification.",
+  "visitDate": "2026-02-10"
+}
+
+### =====================================================
+### 13. Submit NRCC Recommendation
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/submit-recommendation
+Authorization: Bearer {{nrccChairToken}}
+Content-Type: application/json
+
+{
+  "comments": "Based on the verification report findings and NRCC committee deliberations held on 2026-02-12, we recommend APPROVAL of the reclassification from District to Regional road.\n\nJustification:\n1. Road meets criterion R1 - connects two district headquarters\n2. Road meets criterion R2 - serves growing population centers\n3. Road meets criterion R5 - provides access to critical social services\n4. Traffic volume (2,843 vehicles/day) supports upgrade\n5. Strategic importance for regional connectivity"
+}
+
+### =====================================================
+### 14. Minister Records Decision - APPROVE
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/decision
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "decision": "APPROVE",
+  "reason": "Application approved based on NRCC recommendation. Verification confirmed road meets eligibility criteria R1, R2, and R5. Road reclassified from District to Regional effective from gazettement date."
+}
+
+### =====================================================
+### 15. Ministry Lawyer Updates Gazettement
+### =====================================================
+POST http://localhost:8080/api/applications/{{application1Id}}/gazette
+Authorization: Bearer {{lawyerToken}}
+Content-Type: application/json
+
+{
+  "gazetteNumber": "GN/2026/0023",
+  "gazetteDate": "2026-03-15"
+}
+
+### =====================================================
+### PART 3: WORKFLOW B - REGIONAL ROADS BOARD
+### (Application 2: RRB -> RAS -> RC -> Minister)
+### =====================================================
+
+### =====================================================
+### 16. Submit RRB Application
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/submit
+Authorization: Bearer {{rrbToken}}
+
+### =====================================================
+### 17. RAS Approves Application
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/ras-approve
+Authorization: Bearer {{rasToken}}
+Content-Type: application/json
+
+{
+  "comments": "Application reviewed and verified by Regional Administrative Secretary's office. Road is strategic for regional development and inter-regional connectivity. Traffic data and eligibility criteria confirmed. Forwarding to Regional Commissioner for approval."
+}
+
+### =====================================================
+### 18. RC Approves Application
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/rc-approve
+Authorization: Bearer {{rcToken}}
+Content-Type: application/json
+
+{
+  "comments": "Approved by Regional Commissioner. This road is critical for our regional economy and serves as key international corridor. Strongly recommend upgrade to Trunk classification. Forwarding to Honourable Minister for further consideration."
+}
+
+### =====================================================
+### 19. Minister Forwards to NRCC Chair
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/forward-to-nrcc
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "comments": "Regional Roads Board application received via Regional Commissioner with strong regional endorsement. Please conduct technical verification for Trunk road criteria compliance and provide recommendation."
+}
+
+### =====================================================
+### 20. NRCC Chair Assigns Verification (App 2)
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/assign-verification
+Authorization: Bearer {{nrccChairToken}}
+Content-Type: application/json
+
+{
+  "memberId": 7,
+  "instructions": "Conduct comprehensive verification for Trunk road upgrade. Specific focus areas:\n1. Inter-regional connectivity assessment\n2. International traffic analysis (border crossings)\n3. Strategic economic importance\n4. Comparative analysis with existing trunk roads\n5. Infrastructure requirements for upgrade",
+  "dueDate": "2026-02-20"
+}
+
+### =====================================================
+### 21. NRCC Member Submits Verification Report (App 2)
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/submit-verification-report
+Authorization: Bearer {{nrccMemberToken}}
+Content-Type: application/json
+
+{
+  "findings": "Comprehensive verification completed for Kilwa Road.\n\nKEY FINDINGS:\n1. Road connectivity:\n   - Connects DSM Region to Coast and Lindi Regions\n   - International route to Mozambique via Mtwara\n   - Length: 150km (verified)\n\n2. Traffic analysis:\n   - Average daily count: 6,248 vehicles\n   - Heavy goods traffic: 1,562 vehicles/day\n   - International traffic: 423 vehicles/day\n\n3. Economic importance:\n   - Key export corridor for agricultural products\n   - Tourism route to historical Kilwa sites\n   - Industrial development zones along route\n\n4. Current infrastructure:\n   - Mixed surface (60% gravel, 40% deteriorated tarmac)\n   - Multiple sections require reconstruction\n\nRECOMMENDATION: Road strongly qualifies for Trunk classification based on criteria T1 (inter-regional), T2 (international), and T3 (traffic volume). Upgrade will facilitate significant infrastructure investment.",
+  "visitDate": "2026-02-15"
+}
+
+### =====================================================
+### 22. Submit NRCC Recommendation (App 2) - APPROVE
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/submit-recommendation
+Authorization: Bearer {{nrccChairToken}}
+Content-Type: application/json
+
+{
+  "comments": "NRCC recommends APPROVAL for upgrade to Trunk classification.\n\nRationale:\n1. Meets criterion T1: Connects multiple regions\n2. Meets criterion T2: International corridor status\n3. Meets criterion T3: Traffic exceeds 5,000 vehicles/day\n4. Strategic national importance for trade and tourism\n5. Regional government strong endorsement"
+}
+
+### =====================================================
+### 23. Minister Records Decision - APPROVE
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/decision
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "decision": "APPROVE",
+  "reason": "Application approved. Kilwa Road reclassified from Regional to Trunk road based on confirmed eligibility criteria T1, T2, and T3. TANROADS to assume responsibility upon gazettement."
+}
+
+### =====================================================
+### 24. Ministry Lawyer Updates Gazettement (App 2)
+### =====================================================
+POST http://localhost:8080/api/applications/{{application2Id}}/gazette
+Authorization: Bearer {{lawyerToken}}
+Content-Type: application/json
+
+{
+  "gazetteNumber": "GN/2026/0024",
+  "gazetteDate": "2026-03-20"
+}
+
+### =====================================================
+### PART 4: RETURN FOR CORRECTION WORKFLOW
+### =====================================================
+
+### =====================================================
+### 25. Create Application for Testing Return
+### =====================================================
+# @name createApplication3
+POST http://localhost:8080/api/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "applicantType": "MEMBER_OF_PARLIAMENT",
+  "proposedClass": "REGIONAL",
+  "roadName": "Test MP Road",
+  "roadLength": 12.0,
+  "currentClass": "DISTRICT",
+  "startingPoint": "Point A",
+  "terminalPoint": "Point B",
+  "reclassificationReasons": "Road needs upgrade - brief justification",
+  "surfaceTypeCarriageway": "Gravel",
+  "carriagewayWidth": 5.0,
+  "formationWidth": 8.0,
+  "actualRoadReserveWidth": 25.0,
+  "trafficLevel": "Medium",
+  "trafficComposition": "Mixed traffic",
+  "townsVillagesLinked": "Village A, Village B",
+  "busRoutes": "Some bus routes",
+  "publicServices": "Basic services",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "R1",
+      "evidenceDescription": "Basic evidence"
+    }
+  ]
+}
+
+> {%
+    client.global.set("application3Id", response.body.data.id);
+%}
+
+### =====================================================
+### 26. Submit Application 3
+### =====================================================
+POST http://localhost:8080/api/applications/{{application3Id}}/submit
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 27. Return for Correction
+### =====================================================
+POST http://localhost:8080/api/applications/{{application3Id}}/return
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "comments": "Application requires additional information before it can proceed:\n\n1. Justification is too brief - please provide detailed reasons\n2. Traffic data missing - please include traffic count survey\n3. Eligibility evidence insufficient - please provide supporting documents\n4. Please verify road measurements with surveyor data\n\nKindly address these issues and resubmit."
+}
+
+### =====================================================
+### 28. Check Application Status After Return
+### =====================================================
+GET http://localhost:8080/api/applications/{{application3Id}}
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 29. Applicant Updates and Resubmits
+### =====================================================
+PUT http://localhost:8080/api/applications/{{application3Id}}
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "reclassificationReasons": "UPDATED: This road serves as critical infrastructure for the constituency. Traffic surveys conducted over 7 days show average of 1,800 vehicles daily. The road connects 8 villages with total population of 45,000 people to the district headquarters. Current poor condition results in frequent accidents and transportation delays.",
+  "trafficLevel": "High - 1,800 vehicles per day based on 7-day survey",
+  "trafficComposition": "55% private vehicles, 30% daladalas/buses, 15% trucks",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "R1",
+      "details": "Connects to adjacent district headquarters",
+      "evidenceDescription": "Attached survey map with GPS coordinates showing district boundary crossing"
+    },
+    {
+      "criterionCode": "R3",
+      "details": "Road serves 8 villages with 45,000 population",
+      "evidenceDescription": "Population census report from district office"
+    },
+    {
+      "criterionCode": "R5",
+      "details": "Provides access to 2 secondary schools and 1 health centre",
+      "evidenceDescription": "Letters from school heads and medical officer"
+    }
+  ]
+}
+
+### =====================================================
+### 30. Resubmit After Correction
+### =====================================================
+POST http://localhost:8080/api/applications/{{application3Id}}/submit
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### PART 5: DISAPPROVE AND APPEAL WORKFLOW
+### =====================================================
+
+### =====================================================
+### 31. Create Application for Appeal Test
+### =====================================================
+# @name createApplication4
+POST http://localhost:8080/api/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "applicantType": "INDIVIDUAL",
+  "proposedClass": "REGIONAL",
+  "roadName": "Appeal Test Road",
+  "roadLength": 8.0,
+  "currentClass": "FEEDER",
+  "startingPoint": "Village X",
+  "terminalPoint": "Village Y",
+  "reclassificationReasons": "Road upgrade needed for community development",
+  "surfaceTypeCarriageway": "Earth",
+  "carriagewayWidth": 4.0,
+  "formationWidth": 6.0,
+  "actualRoadReserveWidth": 20.0,
+  "trafficLevel": "Low to Medium",
+  "trafficComposition": "Mostly motorcycles and light vehicles",
+  "townsVillagesLinked": "Village X, Village Y",
+  "busRoutes": "Informal transport only",
+  "publicServices": "Primary school",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "R5",
+      "evidenceDescription": "School access"
+    }
+  ]
+}
+
+> {%
+    client.global.set("application4Id", response.body.data.id);
+%}
+
+### =====================================================
+### 32. Submit Application 4
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/submit
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 33. Minister Forwards to NRCC
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/forward-to-nrcc
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "comments": "Please verify eligibility"
+}
+
+### =====================================================
+### 34. NRCC Chair Assigns Verification (App 4)
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/assign-verification
+Authorization: Bearer {{nrccChairToken}}
+Content-Type: application/json
+
+{
+  "memberId": 7,
+  "instructions": "Verify eligibility criteria",
+  "dueDate": "2026-02-25"
+}
+
+### =====================================================
+### 35. NRCC Member Submits Negative Report
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/submit-verification-report
+Authorization: Bearer {{nrccMemberToken}}
+Content-Type: application/json
+
+{
+  "findings": "Verification completed.\n\nFINDINGS:\n- Road length: 8km (verified)\n- Traffic: Low volume, primarily motorcycles\n- Does not meet district connectivity criteria (R1)\n- Does not connect major population centers (R3)\n- Limited social services (only 1 primary school)\n\nRECOMMENDATION: Road does NOT meet criteria for Regional classification. Current Feeder road classification is appropriate.",
+  "visitDate": "2026-02-20"
+}
+
+### =====================================================
+### 36. Submit NRCC Recommendation - DISAPPROVE
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/submit-recommendation
+Authorization: Bearer {{nrccChairToken}}
+Content-Type: application/json
+
+{
+  "comments": "NRCC recommends DISAPPROVAL. Road does not meet minimum eligibility criteria for Regional classification. Recommend maintaining current Feeder road status."
+}
+
+### =====================================================
+### 37. Minister Records Decision - REFUSE
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/decision
+Authorization: Bearer {{ministerToken}}
+Content-Type: application/json
+
+{
+  "decision": "DISAPPROVE",
+  "disapprovalType": "REFUSED",
+  "reason": "Application refused based on NRCC findings. Road does not meet eligibility criteria for Regional classification. Applicant may appeal this decision within 30 days."
+}
+
+### =====================================================
+### 38. Submit Appeal
+### =====================================================
+POST http://localhost:8080/api/applications/{{application4Id}}/appeal
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "grounds": "I respectfully appeal this decision on the following grounds:\n\n1. The verification was conducted during dry season when traffic is lower\n2. New secondary school construction approved - will serve 500 students\n3. Planned health centre will serve 3 villages\n4. Road serves as emergency access route during floods\n5. District development plan prioritizes this area\n\nI request reconsideration based on planned developments and seasonal traffic variations."
+}
+
+### =====================================================
+### PART 6: QUERY AND LISTING OPERATIONS
+### =====================================================
+
+### =====================================================
+### 39. Get My Assigned Applications (as NRCC Member)
+### =====================================================
+GET http://localhost:8080/api/applications/my-assignments
+Authorization: Bearer {{nrccMemberToken}}
+
+### =====================================================
+### 40. Get All Submitted Applications
+### =====================================================
+GET http://localhost:8080/api/applications/status/SUBMITTED?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 41. Get All Approved Applications
+### =====================================================
+GET http://localhost:8080/api/applications/status/APPROVED?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 42. Get All Gazetted Applications
+### =====================================================
+GET http://localhost:8080/api/applications/status/GAZETTED?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 43. Get Applications With Appeal Status
+### =====================================================
+GET http://localhost:8080/api/applications/status/APPEAL_SUBMITTED?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### PART 7: DELETE OPERATION (DRAFT ONLY)
+### =====================================================
+
+### =====================================================
+### 44. Create Draft Application for Delete Test
+### =====================================================
+# @name createForDelete
+POST http://localhost:8080/api/applications
+Authorization: Bearer {{applicantToken}}
+Content-Type: application/json
+
+{
+  "applicantType": "INDIVIDUAL",
+  "proposedClass": "REGIONAL",
+  "roadName": "Delete Test Road",
+  "roadLength": 5.0,
+  "currentClass": "DISTRICT",
+  "startingPoint": "A",
+  "terminalPoint": "B",
+  "reclassificationReasons": "Test - will be deleted",
+  "surfaceTypeCarriageway": "Gravel",
+  "carriagewayWidth": 5.0,
+  "formationWidth": 7.0,
+  "actualRoadReserveWidth": 20.0,
+  "trafficLevel": "Low",
+  "trafficComposition": "Mixed",
+  "townsVillagesLinked": "Test",
+  "busRoutes": "None",
+  "publicServices": "None",
+  "eligibilityCriteria": [
+    {
+      "criterionCode": "R1",
+      "evidenceDescription": "Test"
+    }
+  ]
+}
+
+> {%
+    client.global.set("deleteAppId", response.body.data.id);
+%}
+
+### =====================================================
+### 45. Delete Draft Application
+### =====================================================
+DELETE http://localhost:8080/api/applications/{{deleteAppId}}
+Authorization: Bearer {{applicantToken}}
+
+### =====================================================
+### 46. Verify Deletion (Should return 404)
+### =====================================================
+GET http://localhost:8080/api/applications/{{deleteAppId}}
+Authorization: Bearer {{applicantToken}}

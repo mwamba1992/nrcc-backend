@@ -1,0 +1,21 @@
+package tz.go.roadsfund.nrcc.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Region response DTO
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class RegionResponse {
+    private Long id;
+    private String code;
+    private String name;
+    private String description;
+    private String status;
+}

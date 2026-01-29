@@ -1,0 +1,28 @@
+### NRCC Backend - Health Check & API Info
+### Run this first to verify the application is running
+
+### =====================================================
+### 1. Health Check (Actuator)
+### =====================================================
+GET http://localhost:8080/api/actuator/health
+
+### =====================================================
+### 2. Application Info (Actuator)
+### =====================================================
+GET http://localhost:8080/api/actuator/info
+
+### =====================================================
+### 3. API Documentation (Swagger UI)
+### Open in browser: http://localhost:8080/api/swagger-ui/index.html
+### =====================================================
+GET http://localhost:8080/api/v3/api-docs
+
+### =====================================================
+### 4. Test Unauthenticated Access (Should return 401)
+### =====================================================
+GET http://localhost:8080/api/users
+
+### =====================================================
+### 5. Test Invalid Endpoint (Should return 404)
+### =====================================================
+GET http://localhost:8080/api/invalid-endpoint

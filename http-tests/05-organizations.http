@@ -1,0 +1,151 @@
+### NRCC Backend - Organization Management Tests
+### Requires: Run 01-auth.http first
+
+### =====================================================
+### 1. Create Organization - TANROADS
+### =====================================================
+# @name createOrg1
+POST http://localhost:8080/api/organizations
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Tanzania National Roads Agency",
+  "code": "TANROADS",
+  "type": "GOVERNMENT_AGENCY",
+  "address": "P.O. Box 11364, Dar es Salaam",
+  "phoneNumber": "+255222926001",
+  "email": "info@tanroads.go.tz"
+}
+
+> {%
+    client.global.set("org1Id", response.body.data.id);
+%}
+
+### =====================================================
+### 2. Create Organization - TRF
+### =====================================================
+# @name createOrg2
+POST http://localhost:8080/api/organizations
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Tanzania Roads Fund",
+  "code": "TRF",
+  "type": "GOVERNMENT_AGENCY",
+  "address": "P.O. Box 19394, Dar es Salaam",
+  "phoneNumber": "+255222116756",
+  "email": "info@roadsfund.go.tz"
+}
+
+> {%
+    client.global.set("org2Id", response.body.data.id);
+%}
+
+### =====================================================
+### 3. Create Organization - Ministry of Works
+### =====================================================
+POST http://localhost:8080/api/organizations
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Ministry of Works",
+  "code": "MOW",
+  "type": "MINISTRY",
+  "address": "P.O. Box 9423, Dar es Salaam",
+  "phoneNumber": "+255222111111",
+  "email": "info@works.go.tz"
+}
+
+### =====================================================
+### 4. Create Organization - Regional Roads Board DSM
+### =====================================================
+# @name createOrg3
+POST http://localhost:8080/api/organizations
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dar es Salaam Regional Roads Board",
+  "code": "RRB-DSM",
+  "type": "REGIONAL_BOARD",
+  "address": "Dar es Salaam",
+  "phoneNumber": "+255222333333",
+  "email": "rrb.dsm@roadsfund.go.tz"
+}
+
+> {%
+    client.global.set("org3Id", response.body.data.id);
+%}
+
+### =====================================================
+### 5. Get All Organizations (Paginated)
+### =====================================================
+GET http://localhost:8080/api/organizations?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 6. Get All Organizations (List)
+### =====================================================
+GET http://localhost:8080/api/organizations/list
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 7. Get Organization by ID
+### =====================================================
+GET http://localhost:8080/api/organizations/{{org1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 8. Get Organization by Code
+### =====================================================
+GET http://localhost:8080/api/organizations/code/TANROADS
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 9. Get Organizations by Type
+### =====================================================
+GET http://localhost:8080/api/organizations/type/GOVERNMENT_AGENCY
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 10. Search Organizations by Name
+### =====================================================
+GET http://localhost:8080/api/organizations/search?name=roads&page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 11. Update Organization
+### =====================================================
+PUT http://localhost:8080/api/organizations/{{org1Id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Tanzania National Roads Agency (TANROADS)",
+  "code": "TANROADS",
+  "type": "GOVERNMENT_AGENCY",
+  "address": "P.O. Box 11364, Dar es Salaam, Tanzania",
+  "phoneNumber": "+255222926001",
+  "email": "info@tanroads.go.tz"
+}
+
+### =====================================================
+### 12. Activate Organization
+### =====================================================
+PATCH http://localhost:8080/api/organizations/{{org1Id}}/activate
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 13. Deactivate Organization
+### =====================================================
+PATCH http://localhost:8080/api/organizations/{{org1Id}}/deactivate
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 14. Delete Organization (Use carefully)
+### =====================================================
+# DELETE http://localhost:8080/api/organizations/5
+# Authorization: Bearer {{adminToken}}

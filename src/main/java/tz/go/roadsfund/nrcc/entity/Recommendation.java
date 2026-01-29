@@ -3,7 +3,7 @@ package tz.go.roadsfund.nrcc.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Recommendation entity from NRCC to Minister
@@ -25,19 +25,20 @@ public class Recommendation extends BaseEntity {
     @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @Column(name = "recommendation_text", columnDefinition = "TEXT")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "meeting_id")
+    private NRCCMeeting meeting;
+
+    @Column(name = "recommendation_text", columnDefinition = "TEXT", nullable = false)
     private String recommendationText;
 
-    @Column(length = 500)
-    private String attachment;
-
-    @Column(name = "submitted_date")
-    private LocalDate submittedDate;
+    @Column(name = "attachment_path", length = 500)
+    private String attachmentPath;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submitted_by_id")
     private User submittedBy;
 
-    @Column(name = "recommendation_type", length = 50)
-    private String recommendationType;
+    @Column(name = "submitted_date")
+    private LocalDateTime submittedDate;
 }

@@ -1,0 +1,132 @@
+### NRCC Backend - Region Management Tests
+### Requires: Run 01-auth.http first to get tokens
+
+### =====================================================
+### 1. Create Region - Dar es Salaam
+### =====================================================
+# @name createRegion1
+POST http://localhost:8080/api/regions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dar es Salaam",
+  "code": "DSM"
+}
+
+> {%
+    client.global.set("region1Id", response.body.data.id);
+%}
+
+### =====================================================
+### 2. Create Region - Dodoma
+### =====================================================
+# @name createRegion2
+POST http://localhost:8080/api/regions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dodoma",
+  "code": "DOD"
+}
+
+> {%
+    client.global.set("region2Id", response.body.data.id);
+%}
+
+### =====================================================
+### 3. Create Region - Arusha
+### =====================================================
+POST http://localhost:8080/api/regions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Arusha",
+  "code": "ARU"
+}
+
+### =====================================================
+### 4. Create Region - Mwanza
+### =====================================================
+POST http://localhost:8080/api/regions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Mwanza",
+  "code": "MWZ"
+}
+
+### =====================================================
+### 5. Create Region - Mbeya
+### =====================================================
+POST http://localhost:8080/api/regions
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Mbeya",
+  "code": "MBY"
+}
+
+### =====================================================
+### 6. Get All Regions (Paginated)
+### =====================================================
+GET http://localhost:8080/api/regions?page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 7. Get All Regions (List)
+### =====================================================
+GET http://localhost:8080/api/regions/list
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 8. Get Region by ID
+### =====================================================
+GET http://localhost:8080/api/regions/{{region1Id}}
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 9. Get Region by Code
+### =====================================================
+GET http://localhost:8080/api/regions/code/DSM
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 10. Search Regions by Name
+### =====================================================
+GET http://localhost:8080/api/regions/search?name=dar&page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 11. Update Region
+### =====================================================
+PUT http://localhost:8080/api/regions/{{region1Id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Dar es Salaam Region",
+  "code": "DSM"
+}
+
+### =====================================================
+### 12. Check if Region Code Exists
+### =====================================================
+GET http://localhost:8080/api/regions/exists/code/DSM
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 13. Get Region Count
+### =====================================================
+GET http://localhost:8080/api/regions/count
+Authorization: Bearer {{adminToken}}
+
+### =====================================================
+### 14. Delete Region (Use carefully - may have constraints)
+### =====================================================
+# DELETE http://localhost:8080/api/regions/5
+# Authorization: Bearer {{adminToken}}

@@ -36,11 +36,16 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 50)
     private UserRole role;
 
-    @Column(length = 255)
-    private String organization;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
-    @Column(length = 100)
-    private String region;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id")
+    private District district;
+
+    @Column(name = "user_type", length = 50)
+    private String userType;
 
     @Column(length = 20)
     private String status = "ACTIVE";
@@ -59,6 +64,12 @@ public class User extends BaseEntity {
 
     @Column(name = "reset_token_expiry")
     private java.time.LocalDateTime resetTokenExpiry;
+
+    @Column(name = "email_verification_token", length = 500)
+    private String emailVerificationToken;
+
+    @Column(name = "email_verification_token_expiry")
+    private java.time.LocalDateTime emailVerificationTokenExpiry;
 
     @Column(name = "token_version")
     private Integer tokenVersion = 0;

@@ -25,15 +25,16 @@ public class EligibilityCriteriaSelection extends BaseEntity {
     private Application application;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "criterion_code", nullable = false, length = 10)
-    private EligibilityCriterion criterionCode;
+    @Column(name = "criterion", nullable = false, length = 10)
+    private EligibilityCriterion criterion;
 
     @Column(columnDefinition = "TEXT")
     private String details;
 
-    @Column(name = "evidence_documents", columnDefinition = "TEXT")
-    private String evidenceDocuments;
+    @Column(name = "evidence_description", columnDefinition = "TEXT")
+    private String evidenceDescription;
 
     @Column(name = "is_satisfied")
+    @Builder.Default
     private Boolean isSatisfied = true;
 }
