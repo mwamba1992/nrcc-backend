@@ -150,6 +150,16 @@ public class ActionPlanController {
         return ResponseEntity.ok(ApiResponse.success("Action plan execution started", actionPlan));
     }
 
+    /**
+     * Complete action plan manually
+     */
+    @PostMapping("/{id}/complete")
+    @RequirePermission(Permission.ACTION_PLAN_TRACK)
+    public ResponseEntity<ApiResponse<ActionPlanDetailResponse>> completeActionPlan(@PathVariable Long id) {
+        ActionPlanDetailResponse actionPlan = actionPlanService.completeActionPlan(id);
+        return ResponseEntity.ok(ApiResponse.success("Action plan completed successfully", actionPlan));
+    }
+
     // ==================== TARGET & ACTIVITY OPERATIONS ====================
 
     /**

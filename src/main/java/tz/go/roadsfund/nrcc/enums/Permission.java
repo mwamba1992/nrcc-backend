@@ -42,18 +42,21 @@ public enum Permission {
     REGION_READ,
     REGION_UPDATE,
     REGION_DELETE,
+    REGION_LIST,
 
     // District Management
     DISTRICT_CREATE,
     DISTRICT_READ,
     DISTRICT_UPDATE,
     DISTRICT_DELETE,
+    DISTRICT_LIST,
 
     // Organization Management
     ORGANIZATION_CREATE,
     ORGANIZATION_READ,
     ORGANIZATION_UPDATE,
     ORGANIZATION_DELETE,
+    ORGANIZATION_LIST,
 
     // Road Management
     ROAD_CREATE,

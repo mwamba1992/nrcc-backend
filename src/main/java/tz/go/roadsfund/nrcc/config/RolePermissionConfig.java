@@ -14,14 +14,23 @@ public class RolePermissionConfig {
 
     static {
         // PUBLIC_APPLICANT Permissions
-        ROLE_PERMISSIONS.put(UserRole.PUBLIC_APPLICANT, Set.of(
+        ROLE_PERMISSIONS.put(UserRole.PUBLIC_APPLICANT, EnumSet.of(
                 Permission.APPLICATION_CREATE,
                 Permission.APPLICATION_READ,
                 Permission.APPLICATION_UPDATE,
                 Permission.APPLICATION_SUBMIT,
+                Permission.APPLICATION_LIST,
                 Permission.APPLICATION_APPEAL,
                 Permission.FILE_UPLOAD,
-                Permission.FILE_DOWNLOAD
+                Permission.FILE_DOWNLOAD,
+                Permission.ROAD_LIST,
+                Permission.ROAD_READ,
+                Permission.REGION_READ,
+                Permission.REGION_LIST,
+                Permission.DISTRICT_READ,
+                Permission.DISTRICT_LIST,
+                Permission.ORGANIZATION_READ,
+                Permission.ORGANIZATION_LIST
         ));
 
         // MEMBER_OF_PARLIAMENT Permissions

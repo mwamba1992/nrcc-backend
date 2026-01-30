@@ -160,6 +160,23 @@ public class ActionPlanService {
     }
 
     /**
+     * Complete action plan manually
+     */
+    public ActionPlanDetailResponse completeActionPlan(Long id) {
+        ActionPlan actionPlan = getActionPlanById(id);
+
+        if (actionPlan.getStatus() != ActionPlanStatus.IN_PROGRESS) {
+            throw new BadRequestException("Only in-progress action plans can be completed");
+        }
+
+        actionPlan.setStatus(ActionPlanStatus.COMPLETED);
+        actionPlan = actionPlanRepository.save(actionPlan);
+
+        log.info("Action plan manually completed: {}", actionPlan.getId());
+        return mapToDetailResponse(actionPlan);
+    }
+
+    /**
      * Update activity progress
      */
     public ActionPlanDetailResponse updateActivityProgress(Long activityId, UpdateActivityProgressRequest request) {
