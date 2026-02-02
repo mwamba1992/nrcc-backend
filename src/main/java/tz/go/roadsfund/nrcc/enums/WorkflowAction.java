@@ -17,6 +17,7 @@ public enum WorkflowAction {
     DECIDE("Decision Made"),
     GAZETTE("Gazetted"),
     APPEAL("Appealed"),
+    APPEAL_DECIDE("Appeal Decision"),
     CLOSE("Closed");
 
     private final String displayName;

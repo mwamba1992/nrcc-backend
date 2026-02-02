@@ -21,6 +21,7 @@ public enum ApplicationStatus {
     GAZETTED("Gazetted"),
     APPEAL_SUBMITTED("Appeal Submitted"),
     APPEAL_UNDER_REVIEW("Appeal Under Review"),
+    APPEAL_REJECTED("Appeal Rejected"),
     APPEAL_CLOSED("Appeal Closed");
 
     private final String displayName;
@@ -51,7 +52,7 @@ public enum ApplicationStatus {
      * Check if application is in a final state
      */
     public boolean isFinal() {
-        return this == GAZETTED || this == DISAPPROVED_DESIGNATED || this == APPEAL_CLOSED;
+        return this == GAZETTED || this == DISAPPROVED_DESIGNATED || this == APPEAL_CLOSED || this == APPEAL_REJECTED;
     }
 
     /**

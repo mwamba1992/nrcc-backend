@@ -283,4 +283,16 @@ public class ApplicationController {
         ApplicationDetailResponse application = applicationService.submitAppeal(id, request);
         return ResponseEntity.ok(ApiResponse.success("Appeal submitted successfully", application));
     }
+
+    /**
+     * Record appeal decision (FR-014)
+     */
+    @PostMapping("/{id}/appeal-decision")
+    @RequirePermission(Permission.APPLICATION_DECIDE)
+    public ResponseEntity<ApiResponse<ApplicationDetailResponse>> recordAppealDecision(
+            @PathVariable Long id,
+            @Valid @RequestBody AppealDecisionRequest request) {
+        ApplicationDetailResponse application = applicationService.recordAppealDecision(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Appeal decision recorded successfully", application));
+    }
 }

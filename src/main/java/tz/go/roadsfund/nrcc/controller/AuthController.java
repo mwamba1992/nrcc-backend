@@ -11,6 +11,7 @@ import tz.go.roadsfund.nrcc.dto.response.ApiResponse;
 import tz.go.roadsfund.nrcc.dto.response.AuthResponse;
 import tz.go.roadsfund.nrcc.dto.response.UserDetailsResponse;
 import tz.go.roadsfund.nrcc.service.AuthService;
+import tz.go.roadsfund.nrcc.service.OtpService;
 import tz.go.roadsfund.nrcc.service.UserService;
 import tz.go.roadsfund.nrcc.util.SecurityUtil;
 
@@ -24,6 +25,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final OtpService otpService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(
@@ -32,6 +34,39 @@ public class AuthController {
         AuthResponse response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("User registered successfully", response));
+    }
+
+    /**
+     * Applicant self-registration (PUBLIC_APPLICANT role only)
+     */
+    @PostMapping("/register/applicant")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerApplicant(
+            @Valid @RequestBody ApplicantRegisterRequest request) {
+        AuthResponse response = authService.registerApplicant(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Registration successful. You can now login.", response));
+    }
+
+    /**
+     * Request OTP for login
+     */
+    @PostMapping("/otp/request")
+    public ResponseEntity<ApiResponse<Void>> requestOtp(
+            @Valid @RequestBody OtpRequest request) {
+        otpService.sendOtp(request.getPhoneNumber());
+        return ResponseEntity.ok(ApiResponse.success("OTP sent successfully", null));
+    }
+
+    /**
+     * Verify OTP and login
+     */
+    @PostMapping("/otp/verify")
+    public ResponseEntity<ApiResponse<AuthResponse>> verifyOtpAndLogin(
+            @Valid @RequestBody OtpVerifyRequest request,
+            HttpServletRequest httpRequest) {
+        otpService.verifyOtp(request.getPhoneNumber(), request.getOtp());
+        AuthResponse response = authService.loginWithOtp(request.getPhoneNumber(), httpRequest);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 
     @PostMapping("/login")

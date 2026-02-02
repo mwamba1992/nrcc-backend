@@ -41,6 +41,16 @@ public class Notification extends BaseEntity {
     @Column(length = 255)
     private String subject;
 
+    @Column(length = 255)
+    private String title;
+
+    @Column(length = 50)
+    private String type;
+
+    @Column(name = "is_read")
+    @Builder.Default
+    private Boolean read = false;
+
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 

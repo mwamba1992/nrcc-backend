@@ -91,7 +91,7 @@ public class RolePermissionConfig {
         ));
 
         // NRCC_CHAIRPERSON Permissions
-        ROLE_PERMISSIONS.put(UserRole.NRCC_CHAIRPERSON, Set.of(
+        ROLE_PERMISSIONS.put(UserRole.NRCC_CHAIRPERSON, EnumSet.of(
                 Permission.APPLICATION_READ,
                 Permission.APPLICATION_LIST,
                 Permission.APPLICATION_ASSIGN_VERIFICATION,
@@ -103,22 +103,30 @@ public class RolePermissionConfig {
                 Permission.ACTION_PLAN_CREATE,
                 Permission.ACTION_PLAN_READ,
                 Permission.ACTION_PLAN_UPDATE,
-                Permission.ACTION_PLAN_APPROVE
+                Permission.ACTION_PLAN_APPROVE,
+                Permission.MEETING_CREATE,
+                Permission.MEETING_READ,
+                Permission.MEETING_UPDATE,
+                Permission.MEETING_DELETE,
+                Permission.MEETING_LIST,
+                Permission.MEETING_CONDUCT
         ));
 
         // NRCC_MEMBER Permissions
-        ROLE_PERMISSIONS.put(UserRole.NRCC_MEMBER, Set.of(
+        ROLE_PERMISSIONS.put(UserRole.NRCC_MEMBER, EnumSet.of(
                 Permission.APPLICATION_READ,
                 Permission.APPLICATION_LIST,
                 Permission.APPLICATION_VERIFY,
                 Permission.FILE_DOWNLOAD,
                 Permission.FILE_UPLOAD,
                 Permission.ACTION_PLAN_READ,
-                Permission.ACTION_PLAN_TRACK
+                Permission.ACTION_PLAN_TRACK,
+                Permission.MEETING_READ,
+                Permission.MEETING_LIST
         ));
 
         // NRCC_SECRETARIAT Permissions
-        ROLE_PERMISSIONS.put(UserRole.NRCC_SECRETARIAT, Set.of(
+        ROLE_PERMISSIONS.put(UserRole.NRCC_SECRETARIAT, EnumSet.of(
                 Permission.APPLICATION_READ,
                 Permission.APPLICATION_UPDATE,
                 Permission.APPLICATION_LIST,
@@ -129,7 +137,11 @@ public class RolePermissionConfig {
                 Permission.ACTION_PLAN_CREATE,
                 Permission.ACTION_PLAN_READ,
                 Permission.ACTION_PLAN_UPDATE,
-                Permission.ACTION_PLAN_TRACK
+                Permission.ACTION_PLAN_TRACK,
+                Permission.MEETING_CREATE,
+                Permission.MEETING_READ,
+                Permission.MEETING_UPDATE,
+                Permission.MEETING_LIST
         ));
 
         // MINISTRY_LAWYER Permissions

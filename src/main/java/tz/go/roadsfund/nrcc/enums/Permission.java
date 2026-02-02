@@ -37,6 +37,14 @@ public enum Permission {
     ACTION_PLAN_APPROVE,
     ACTION_PLAN_TRACK,
 
+    // Meeting Management
+    MEETING_CREATE,
+    MEETING_READ,
+    MEETING_UPDATE,
+    MEETING_DELETE,
+    MEETING_LIST,
+    MEETING_CONDUCT,
+
     // Region Management
     REGION_CREATE,
     REGION_READ,

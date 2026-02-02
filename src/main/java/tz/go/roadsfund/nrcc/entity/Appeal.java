@@ -54,4 +54,7 @@ public class Appeal extends BaseEntity {
 
     @Column(name = "decision_date")
     private LocalDateTime decisionDate;
+
+    @Column(name = "decision_reason", columnDefinition = "TEXT")
+    private String decisionReason;
 }

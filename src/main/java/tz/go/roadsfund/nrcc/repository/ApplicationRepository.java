@@ -50,4 +50,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @Query("SELECT a FROM Application a WHERE a.status IN :statuses")
     List<Application> findByStatusIn(@Param("statuses") List<ApplicationStatus> statuses);
+
+    @Query("SELECT COUNT(a) FROM Application a WHERE a.applicant.id = :applicantId")
+    Long countByApplicantId(@Param("applicantId") Long applicantId);
+
+    @Query("SELECT COUNT(a) FROM Application a WHERE a.applicant.id = :applicantId AND a.status = :status")
+    Long countByApplicantIdAndStatus(@Param("applicantId") Long applicantId, @Param("status") ApplicationStatus status);
 }

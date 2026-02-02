@@ -23,4 +23,6 @@ public interface ActionPlanRepository extends JpaRepository<ActionPlan, Long> {
     List<ActionPlan> findByApprovedById(Long userId);
 
     List<ActionPlan> findByFinancialYearContaining(String year);
+
+    Long countByStatus(ActionPlanStatus status);
 }

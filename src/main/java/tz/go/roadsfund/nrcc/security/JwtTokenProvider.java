@@ -50,6 +50,24 @@ public class JwtTokenProvider {
         return generateToken(authentication, 0);
     }
 
+    /**
+     * Generate token directly from user details (for OTP login)
+     */
+    public String generateTokenForUser(Long userId, String email, String role, Integer tokenVersion) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpiration);
+
+        return Jwts.builder()
+                .subject(Long.toString(userId))
+                .claim("email", email)
+                .claim("role", role)
+                .claim("tokenVersion", tokenVersion != null ? tokenVersion : 0)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(getSigningKey(), Jwts.SIG.HS512)
+                .compact();
+    }
+
     public String generateRefreshToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Date now = new Date();

@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tz.go.roadsfund.nrcc.dto.request.ApplicantRegisterRequest;
 import tz.go.roadsfund.nrcc.dto.request.LoginRequest;
 import tz.go.roadsfund.nrcc.dto.request.RegisterRequest;
 import tz.go.roadsfund.nrcc.dto.response.AuthResponse;
@@ -229,6 +230,111 @@ public class AuthService {
         }
 
         return request.getRemoteAddr();
+    }
+
+    /**
+     * Register a new applicant (self-registration)
+     */
+    public AuthResponse registerApplicant(ApplicantRegisterRequest request) {
+        // Check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Email address already in use");
+        }
+
+        // Normalize phone number
+        String phoneNumber = normalizePhoneNumber(request.getPhoneNumber());
+
+        // Check if phone number already exists
+        if (userRepository.findByPhoneNumber(phoneNumber).isPresent()) {
+            throw new BadRequestException("Phone number already registered");
+        }
+
+        // Create new applicant user
+        User user = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(phoneNumber)
+                .role(UserRole.PUBLIC_APPLICANT)
+                .status("ACTIVE")
+                .emailVerified(false)
+                .phoneVerified(false)
+                .build();
+
+        userRepository.save(user);
+
+        // Authenticate and generate tokens
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String accessToken = tokenProvider.generateToken(authentication);
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+        UserResponse userResponse = mapToUserResponse(user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
+    }
+
+    /**
+     * Login with OTP (after OTP verification)
+     */
+    public AuthResponse loginWithOtp(String phoneNumber, HttpServletRequest httpRequest) {
+        // Normalize phone number
+        phoneNumber = normalizePhoneNumber(phoneNumber);
+
+        User user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new BadRequestException("No account found with this phone number"));
+
+        // Generate token directly from user details
+        Integer tokenVersion = user.getTokenVersion() != null ? user.getTokenVersion() : 0;
+        String accessToken = tokenProvider.generateTokenForUser(
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name(),
+                tokenVersion
+        );
+
+        // Create refresh token
+        String deviceInfo = getDeviceInfo(httpRequest);
+        String ipAddress = getClientIpAddress(httpRequest);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user, deviceInfo, ipAddress);
+
+        // Update last login and mark phone as verified
+        user.setLastLogin(LocalDateTime.now());
+        user.setPhoneVerified(true);
+        userRepository.save(user);
+
+        UserResponse userResponse = mapToUserResponse(user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken.getToken())
+                .user(userResponse)
+                .build();
+    }
+
+    private String normalizePhoneNumber(String phoneNumber) {
+        // Remove spaces and dashes
+        phoneNumber = phoneNumber.replaceAll("[\\s-]", "");
+
+        // Convert 0xxx to +255xxx
+        if (phoneNumber.startsWith("0")) {
+            phoneNumber = "+255" + phoneNumber.substring(1);
+        }
+
+        // Ensure +255 prefix
+        if (!phoneNumber.startsWith("+255")) {
+            phoneNumber = "+255" + phoneNumber;
+        }
+
+        return phoneNumber;
     }
 
     private UserResponse mapToUserResponse(User user) {

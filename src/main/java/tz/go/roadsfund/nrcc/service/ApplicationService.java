@@ -604,6 +604,53 @@ public class ApplicationService {
         return mapToDetailResponse(application);
     }
 
+    /**
+     * Record appeal decision (FR-014)
+     */
+    public ApplicationDetailResponse recordAppealDecision(Long id, AppealDecisionRequest request) {
+        Application application = getApplicationById(id);
+        validateStatus(application, ApplicationStatus.APPEAL_SUBMITTED);
+
+        List<Appeal> appeals = appealRepository.findByApplication(application);
+        if (appeals.isEmpty()) {
+            throw new BadRequestException("No appeal found for this application");
+        }
+
+        Appeal appeal = appeals.get(appeals.size() - 1); // Get the most recent appeal
+        appeal.setStatus(AppealStatus.CLOSED);
+        appeal.setDecisionDate(LocalDateTime.now());
+        appeal.setDecidedBy(getCurrentUser());
+        appeal.setDecisionReason(request.getReason());
+        appealRepository.save(appeal);
+
+        ApplicationStatus previousStatus = application.getStatus();
+        ApplicationStatus newStatus;
+
+        if (request.getDecision() == DecisionType.APPROVE) {
+            // Appeal granted - restart the process
+            newStatus = ApplicationStatus.WITH_NRCC_CHAIR;
+            application.setCurrentOwner(findUserByRole(UserRole.NRCC_CHAIRPERSON));
+
+            notificationService.sendApplicationNotification(application,
+                    "Your appeal has been granted. Your application will be reviewed again by the NRCC.");
+        } else {
+            // Appeal rejected - final decision
+            newStatus = ApplicationStatus.APPEAL_REJECTED;
+            application.setCurrentOwner(null);
+
+            notificationService.sendApplicationNotification(application,
+                    "Your appeal has been rejected. Decision: " + request.getReason());
+        }
+
+        application.setStatus(newStatus);
+        application = applicationRepository.save(application);
+
+        recordAction(application, WorkflowAction.APPEAL_DECIDE, previousStatus, newStatus, request.getReason());
+
+        log.info("Appeal decision recorded for application: {}", application.getApplicationNumber());
+        return mapToDetailResponse(application);
+    }
+
     // ==================== HELPER METHODS ====================
 
     private Application getApplicationById(Long id) {

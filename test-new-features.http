@@ -1,0 +1,208 @@
+### NRCC Backend - New Features Test File
+### This file tests all newly implemented features
+
+### Variables
+@baseUrl = http://localhost:8080/api
+@adminToken = {{$dotenv ADMIN_TOKEN}}
+@chairToken = {{$dotenv CHAIR_TOKEN}}
+@memberToken = {{$dotenv MEMBER_TOKEN}}
+
+### =====================================================
+### AUTHENTICATION - Login to get tokens
+### =====================================================
+
+### Login as NRCC Chair
+# @name chairLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nrcc.chair@roadsfund.go.tz",
+  "password": "Chair@123"
+}
+
+### Login as NRCC Member
+# @name memberLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "nrcc.member@roadsfund.go.tz",
+  "password": "Member@123"
+}
+
+### Login as Applicant
+# @name applicantLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "applicant@example.com",
+  "password": "Applicant@123"
+}
+
+### =====================================================
+### DASHBOARD & REPORTS
+### =====================================================
+
+### Get Dashboard Stats (requires REPORT_VIEW permission)
+GET {{baseUrl}}/dashboard/stats
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Get Application Stats by Status
+GET {{baseUrl}}/dashboard/stats/applications
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Get My Stats (current user's application stats)
+GET {{baseUrl}}/dashboard/stats/my
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### Get Action Plan Stats
+GET {{baseUrl}}/dashboard/stats/action-plans
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### =====================================================
+### NOTIFICATIONS
+### =====================================================
+
+### Get All Notifications (paginated)
+GET {{baseUrl}}/notifications?page=0&size=20
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### Get Unread Notifications
+GET {{baseUrl}}/notifications/unread
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### Get Unread Notifications Count
+GET {{baseUrl}}/notifications/unread-count
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### Mark Notification as Read
+PUT {{baseUrl}}/notifications/1/read
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### Mark All Notifications as Read
+PUT {{baseUrl}}/notifications/read-all
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### Delete Notification
+DELETE {{baseUrl}}/notifications/1
+Authorization: Bearer {{applicantLogin.response.body.data.accessToken}}
+
+### =====================================================
+### MEETINGS (NRCC Meeting Management)
+### =====================================================
+
+### Create Meeting
+POST {{baseUrl}}/meetings
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "NRCC Q2 2024 Review Meeting",
+  "description": "Quarterly meeting to review road reclassification applications",
+  "meetingDate": "2024-06-15",
+  "startTime": "09:00",
+  "endTime": "12:00",
+  "venue": "NRCC Conference Room, Dar es Salaam",
+  "agenda": "1. Opening remarks\n2. Review of pending applications\n3. Voting on recommendations\n4. AOB"
+}
+
+### Get All Meetings (paginated)
+GET {{baseUrl}}/meetings?page=0&size=10&sortBy=meetingDate&sortDir=DESC
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Get Meeting by ID
+GET {{baseUrl}}/meetings/1
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Get Meetings by Status
+GET {{baseUrl}}/meetings/status/SCHEDULED
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Get Upcoming Meetings
+GET {{baseUrl}}/meetings/upcoming
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Update Meeting
+PUT {{baseUrl}}/meetings/1
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "NRCC Q2 2024 Review Meeting - Updated",
+  "venue": "New Conference Room, Floor 5",
+  "agenda": "1. Opening\n2. Application review\n3. Recommendations\n4. Closing"
+}
+
+### Start Meeting (change status to IN_PROGRESS)
+POST {{baseUrl}}/meetings/1/start
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Add Application to Meeting
+POST {{baseUrl}}/meetings/1/applications/1
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Remove Application from Meeting
+DELETE {{baseUrl}}/meetings/1/applications/1
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Add Attendee to Meeting
+POST {{baseUrl}}/meetings/1/attendees/11
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Remove Attendee from Meeting
+DELETE {{baseUrl}}/meetings/1/attendees/11
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Complete Meeting (with minutes and resolution)
+POST {{baseUrl}}/meetings/1/complete
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+Content-Type: application/json
+
+{
+  "minutes": "Meeting convened at 9:00 AM. All members present. Applications reviewed and discussed in detail.",
+  "resolution": "Applications 1, 2, and 3 approved for recommendation to Minister. Application 4 returned for additional documentation."
+}
+
+### Cancel Meeting
+POST {{baseUrl}}/meetings/1/cancel
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### Delete Meeting (only if not completed)
+DELETE {{baseUrl}}/meetings/1
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+
+### =====================================================
+### APPEAL DECISION (New Endpoint)
+### =====================================================
+
+### Record Appeal Decision (Grant appeal - restart review)
+POST {{baseUrl}}/applications/1/appeal-decision
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+Content-Type: application/json
+
+{
+  "decision": "APPROVE",
+  "reason": "After reviewing additional evidence provided by the appellant, the appeal is granted and the application will be reviewed again.",
+  "comments": "New documentation submitted was found to be valid."
+}
+
+### Record Appeal Decision (Reject appeal - final)
+POST {{baseUrl}}/applications/1/appeal-decision
+Authorization: Bearer {{chairLogin.response.body.data.accessToken}}
+Content-Type: application/json
+
+{
+  "decision": "DISAPPROVE",
+  "reason": "The grounds provided for the appeal are insufficient to warrant a review of the original decision.",
+  "comments": "No new evidence was presented."
+}
+
+### =====================================================
+### ACTION PLAN - Complete Endpoint
+### =====================================================
+
+### Complete Action Plan
+POST {{baseUrl}}/action-plans/1/complete
+Authorization: Bearer {{memberLogin.response.body.data.accessToken}}
